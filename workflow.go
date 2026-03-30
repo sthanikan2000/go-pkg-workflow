@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+	"maps"
 	"time"
 
 	"github.com/google/uuid"
@@ -213,6 +214,10 @@ func (g *graphInterpreter) handleTaskNode(ctx workflow.Context, nodeInfo *NodeIn
 		return err
 	}
 
+	// Merge activity result into global WorkflowVariables
+	maps.Copy(g.instance.WorkflowVariables, result)
+
+	// Handle output mapping if defined - this allows task templates to return a generic result and map it to specific global WorkflowVariables
 	if len(node.OutputMapping) > 0 && result != nil {
 		for taskKey, globalKey := range node.OutputMapping {
 			if val, exists := result[taskKey]; exists {
